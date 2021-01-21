@@ -1,12 +1,13 @@
 #Importando librarys
-library(cluster)
-library(xlsx)
+library(factoextra)
 library(imputeTS)
 
 #Base de dados
-dados_brutos = read.csv("water-treatment.data", header=T)
+dados_brutos = read.csv("water-treatment.data", header=T,row.names = 1)
+
+#Transpondo dados e removendo a primeira linha
 dados_transpostos = t(dados_brutos)
-dados_na <- dados_transpostos[-1,]
+dados_na <- dados_transpostos
 
 #Verificando tipo dos dados
 sapply(dados_na, class)
@@ -48,6 +49,9 @@ data_scaled <- scale(dados_convertidos_na)
 #Preenchendo dados faltantes com a média no dataset padronizado
 data_mean_scaled <- na_mean(data_scaled)
 
+#Definir a quantidade ótima de clusters no dataset padronizado
+fviz_nbclust(data_mean_scaled, kmeans, method = "silhouette" )
+
 #Gerar o kmeans com o dataset padronizado
 dados_kmeans_scaled <- kmeans(data_mean_scaled, 2)
 
@@ -61,16 +65,17 @@ dendograma_complete <- hclust(dist(data), method="complete")
 dendograma_average <- hclust(dist(data), method="average")
 dendograma_single <- hclust(dist(data), method="single")
 
+#Visualizando os dendogramas
 plot(dendograma_complete, main="Complete")
 plot(dendograma_average, main="Average")
 plot(dendograma_single, main="Single")
 
 #Gerando os dendogramas do dataset padronizado
-
 dendograma_complete_scaled <- hclust(dist(data_mean_scaled), method="complete")
 dendograma_average_scaled <- hclust(dist(data_mean_scaled), method="average")
 dendograma_single_scaled <- hclust(dist(data_mean_scaled), method="single")
 
+#Visualizando os dendogramas do dataset padronizado
 plot(dendograma_complete_scaled, main="Complete Scaled")
 plot(dendograma_average_scaled, main="Average Scaled")
 plot(dendograma_single_scaled, main="Single Scaled")
